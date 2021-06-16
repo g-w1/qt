@@ -1,0 +1,3 @@
+zig-*/
+*.tsv
+!list.example.tsv
