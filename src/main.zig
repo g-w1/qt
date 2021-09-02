@@ -2,7 +2,10 @@ const std = @import("std");
 
 const TD = struct { term: []const u8, def: []const u8 };
 
+const debug = std.debug;
+
 pub fn main() anyerror!void {
+    // setup
     var a = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = a.deinit();
     const gpa = &a.allocator;
@@ -21,6 +24,8 @@ pub fn main() anyerror!void {
     var incorrect = std.ArrayList(TD).init(gpa);
     defer incorrect.deinit();
 
+    // parsing
+
     var itn = std.mem.tokenize(r, "\n");
     while (itn.next()) |l| {
         var itl = std.mem.tokenize(l, "\t");
@@ -28,6 +33,9 @@ pub fn main() anyerror!void {
         const second = itl.next() orelse fatal("invalid line: \"{s}\"", .{l});
         try lines.append(.{ .term = first, .def = second });
     }
+
+    // shuffle it
+
     var prng = std.rand.DefaultPrng.init(blk: {
         var seed: u64 = undefined;
         try std.os.getrandom(std.mem.asBytes(&seed));
@@ -35,6 +43,8 @@ pub fn main() anyerror!void {
     });
     const rand = &prng.random;
     rand.shuffle(TD, lines.items);
+
+    // main loop
 
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
