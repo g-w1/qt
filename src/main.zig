@@ -26,9 +26,9 @@ pub fn main() anyerror!void {
 
     // parsing
 
-    var itn = std.mem.tokenize(r, "\n");
+    var itn = std.mem.tokenize(u8, r, "\n");
     while (itn.next()) |l| {
-        var itl = std.mem.tokenize(l, "\t");
+        var itl = std.mem.tokenize(u8, l, "\t");
         const first = itl.next() orelse fatal("invalid line: \"{s}\"", .{l});
         const second = itl.next() orelse fatal("invalid line: \"{s}\"", .{l});
         try lines.append(.{ .term = first, .def = second });
@@ -41,7 +41,7 @@ pub fn main() anyerror!void {
         try std.os.getrandom(std.mem.asBytes(&seed));
         break :blk seed;
     });
-    const rand = &prng.random;
+    const rand = prng.random();
     rand.shuffle(TD, lines.items);
 
     // main loop
@@ -154,7 +154,7 @@ test "lev" {
 
 pub fn matches(ally: *std.mem.Allocator, guess: []const u8, ans: []const u8) !bool {
     var min: usize = std.math.maxInt(usize);
-    var possible = std.mem.tokenize(ans, ";,");
+    var possible = std.mem.tokenize(u8, ans, ";,");
     while (possible.next()) |item| {
         const num: usize = try lev(u8, ally, guess, item);
         if (num < min) min = num;
